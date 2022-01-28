@@ -1,5 +1,6 @@
 ﻿using System;
 
+
 namespace FileLoggerKata
 {
     public interface IFileSystem
@@ -11,3 +12,4 @@ namespace FileLoggerKata
         void Rename(string currentPath, string newPath);
     }
 }
+
