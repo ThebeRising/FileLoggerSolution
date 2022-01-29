@@ -10,29 +10,29 @@ namespace FileLoggerTests
     {
         
         FileSystem IFSI;
-        FileLoggerKata.FileLogger fl;
+        FileLogger fl;
         
         [SetUp]
         public void Setup()
         {
+
             IFSI = new FileSystem();
-            fl = new FileLoggerKata.FileLogger(IFSI,new LogDateProvider());
+            fl = new FileLogger(IFSI,new LogDateProvider());
+
+            //If it exists, delete the weekday file.
             if (File.Exists("Log" + new LogDateProvider().Today.ToString("yyyyMMdd") + ".txt"))
-            {
                 File.Delete("Log" + new LogDateProvider().Today.ToString("yyyyMMdd") + ".txt");
-            }
 
+            //If it exists, delete the weekdend file.
             if (File.Exists("weekend.txt"))
-            {
                 File.Delete("weekend.txt");
-            }
+
+            //If it exists, delete the weekdend archive file.
+            if (File.Exists("weekend-" + new ArchiveDateProvider().Today.ToString("yyyyMMdd") + ".txt"))
+                File.Delete("weekend-" + new ArchiveDateProvider().Today.ToString("yyyyMMdd") + ".txt");
+
         }
 
-        [Test]
-        public void TestWeekdayLogDoesNotExist()
-        {
-            Assert.IsFalse(File.Exists("Log" + new LogDateProvider().Today.ToString("yyyyMMdd") + ".txt"));
-        }
 
         [Test]
         public void Test1stLogFileCreated()
@@ -45,13 +45,26 @@ namespace FileLoggerTests
         }
 
         [Test]
+        public void TestTheAppendFunctionWhenLogExists()
+        {
+            
+            fl.Log("123");
+
+            fl = new FileLogger(new FileSystem(), new DifferentTimeLogDateProvider());
+            fl.Log("456");
+
+            Assert.IsTrue(File.ReadAllText("Log" + new LogDateProvider().Today.ToString("yyyyMMdd") + ".txt").Contains("456"));
+            Assert.IsTrue(File.ReadAllText("Log" + new LogDateProvider().Today.ToString("yyyyMMdd") + ".txt").Contains("123"));
+        }
+
+        [Test]
         public void TestIfWeekdayLogCreatedWithCorrectName()
         {
            
             fl.Log("HI Weekday!");
 
             Assert.IsTrue(File.Exists("Log" + new LogDateProvider().Today.ToString("yyyyMMdd") + ".txt"));
-            Assert.AreEqual("Log" + new LogDateProvider().Today.ToString("yyyyMMdd") + ".txt", Path.GetDirectoryName("Log" + new LogDateProvider().Today.ToString("yyyyMMdd") + ".txt"));
+            Assert.AreEqual("Log" + new LogDateProvider().Today.ToString("yyyyMMdd") + ".txt", "Log20210222.txt");
 
         }
 
@@ -63,6 +76,7 @@ namespace FileLoggerTests
             fl.Log("Hi Saturday Weekend!");
 
             Assert.IsTrue(File.Exists("weekend.txt"));
+            Assert.IsTrue(File.ReadAllText("weekend.txt").Contains("Hi Sunday Weekend!"));
 
         }
 
@@ -95,6 +109,7 @@ namespace FileLoggerTests
 
 
             Assert.IsTrue(File.Exists("weekend-" + new ArchiveDateProvider().Today.ToString("yyyyMMdd") + ".txt"));
+            Assert.IsTrue(File.ReadAllText("weekend-"+ new ArchiveDateProvider().Today.ToString("yyyyMMdd") + ".txt").Contains("Weekend is archived"));
         }
 
 
@@ -108,8 +123,7 @@ namespace FileLoggerTests
 
             Assert.AreEqual(loggedTextExpected, File.ReadAllText("Log" + new LogDateProvider().Today.ToString("yyyyMMdd") + ".txt"));
 
-            if (File.Exists("Log" + new LogDateProvider().Today.ToString("yyyyMMdd") + ".txt"))
-                File.Delete("Log" + new LogDateProvider().Today.ToString("yyyyMMdd") + ".txt");
+
         }
 
     }

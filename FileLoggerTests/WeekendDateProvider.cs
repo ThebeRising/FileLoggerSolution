@@ -28,6 +28,13 @@ namespace FileLoggerTests
     {
         public static IDateProvider Instance => new DefaultDataProvider();
 
+        public DateTime Today => new DateTime(2021, 02, 22, 20, 22, 22);
+    }
+
+    public class DifferentTimeLogDateProvider : IDateProvider
+    {
+        public static IDateProvider Instance => new DefaultDataProvider();
+
         public DateTime Today => new DateTime(2021, 02, 22, 22, 22, 22);
     }
 }
